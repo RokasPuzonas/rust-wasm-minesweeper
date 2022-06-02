@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Minesweeper</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<style>
+html {
+	font-size: 200%;
+	font-family: 'Segoe UI', Tahoma,  Geneva, Verdana, sans-serif;
+}
+
+.field {
+	text-decoration: none;
+	text-align: center;
+	width: 1.2rem;
+	height: 1.2rem;
+	line-height: 1.2rem;
+}
+	</style>
+</head>
+<body>
+	<div id="root">
+		<script type="module">
+			import init, { getState, openField } from "./pkg/rust_wasm_minesweeper.js";
+
+			async function main() {
+				await init();
+				render();
+			}
+
+			function render() {
+				let state = getState();
+				let data = state.split("\n").map(row => row.trim().split(/\s+/));
+
+				let root = document.getElementById("root");
+				root.innerHTML = "";
+				root.style.display = "inline-grid"
+				root.style.gridTemplate = `repeat(${data.length}, auto) / repeat(${data[0].length}, auto)`
+
+				for (let y = 0; y < data.length; y++) {
+					for (let x = 0; x < data[y].length; x++) {
+						let elem = document.createElement("a");
+						elem.classList.add("field");
+						elem.href = "#";
+						elem.innerHTML = data[y][x];
+						elem.addEventListener("click", e => {
+							e.preventDefault();
+							openField(x, y);
+							render();
+						});
+						root.appendChild(elem);
+					}
+				}
+			}
+
+			main();
+		</script>
+	</div>
+</body>
+</html>
