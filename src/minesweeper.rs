@@ -75,8 +75,29 @@ impl Minesweeper {
 			.count() as u8
 	}
 
+    pub fn count_flags(&self, position: Position) -> u8 {
+		self.iter_neighbours(position)
+			.filter(|pos| self.flags.contains(pos))
+			.count() as u8
+    }
+
 	pub fn open(&mut self, position: Position) -> Option<OpenResult> {
-		if self.game_over || self.open_fields.contains(&position) || self.flags.contains(&position) {
+        if self.open_fields.contains(&position) {
+			let mines = self.count_mines(position);
+            let flags = self.count_flags(position);
+
+            if mines == flags {
+				for neighbour in self.iter_neighbours(position) {
+                    if !self.flags.contains(&neighbour) && !self.open_fields.contains(&neighbour) {
+                        self.open(neighbour);
+                    }
+				}
+            }
+
+			return None;
+        }
+
+		if self.game_over || self.flags.contains(&position) {
 			return None;
 		}
 
@@ -89,7 +110,9 @@ impl Minesweeper {
 			let mines = self.count_mines(position);
 			if mines == 0 {
 				for neighbour in self.iter_neighbours(position) {
-					self.open(neighbour);
+                    if !self.open_fields.contains(&neighbour) {
+                        self.open(neighbour);
+                    }
 				}
 			}
 			Some(OpenResult::NoMine(mines))

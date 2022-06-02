@@ -23,7 +23,7 @@ html {
 <body>
 	<div id="root">
 		<script type="module">
-			import init, { getState, openField } from "./pkg/rust_wasm_minesweeper.js";
+			import init, { getState, openField, toggleFlag } from "./pkg/rust_wasm_minesweeper.js";
 
 			async function main() {
 				await init();
@@ -48,6 +48,12 @@ html {
 						elem.addEventListener("click", e => {
 							e.preventDefault();
 							openField(x, y);
+							render();
+						});
+
+						elem.addEventListener("contextmenu", e => {
+							e.preventDefault();
+							toggleFlag(x, y);
 							render();
 						});
 						root.appendChild(elem);
